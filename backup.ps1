@@ -2,7 +2,7 @@ Connect-AzAccount
 
 Get-AzContext
 
- foreach($sub in $subs)
+foreach($sub in $subs)
 {
 Set-AzContext -SubscriptionId $sub.Id
 
@@ -55,4 +55,19 @@ $RetPol.WeeklySchedule.DurationCountInWeeks = $semana
 $RetPol.IsMonthlyScheduleEnabled= $null
 $RetPol.IsYearlyScheduleEnabled= $null
 New-AzRecoveryServicesBackupProtectionPolicy -Name $LowPol -WorkloadType AzureVM -RetentionPolicy $RetPol -SchedulePolicy $SchPol -VaultId $vaultid
+
+
+
+Write-Output "Empecemos a respaldar TODAS tus máquinas que no están respaldadas" 
+
+$pol = Get-AzRecoveryServicesBackupProtectionPolicy -Name $LowPol -VaultId $vaultid
+    $crear=   foreach($rg in $rgs)
+    {
+    $vms = Get-AzVm
+            foreach($vm in $vms)
+        {
+            Enable-AzRecoveryServicesBackupProtection -Policy $pol -Name $vm.Name -ResourceGroupName $rg.ResourceGroupName
+
+        }
+    }
 }
